@@ -12,7 +12,9 @@ if old then old:Destroy() end
 -- state
 local pages      = {}
 local tabButtons = {}
-local activePage = nil
+
+-- init GUI table immediately so tabs can find it
+_G.RuneHub.GUI = {}
 
 -- ScreenGui
 local screenGui = Instance.new("ScreenGui")
@@ -30,7 +32,7 @@ showBtn.Size                = UDim2.new(0, 100, 0, 30)
 showBtn.Position            = UDim2.new(0, 10, 0, 10)
 showBtn.BackgroundColor3    = Theme.Accent
 showBtn.TextColor3          = Color3.fromRGB(255, 255, 255)
-showBtn.Text                = "🌾 " .. _G.RuneHub.Config.HubName
+showBtn.Text                = "Rune Hub"
 showBtn.Font                = Enum.Font.GothamBold
 showBtn.TextSize            = 11
 showBtn.BorderSizePixel     = 0
@@ -63,7 +65,6 @@ titleBar.ZIndex           = 10
 titleBar.Parent           = frame
 Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 12)
 
--- fix bottom corners of titlebar
 local titleFix = Instance.new("Frame")
 titleFix.Size             = UDim2.new(1, 0, 0, 12)
 titleFix.Position         = UDim2.new(0, 0, 1, -12)
@@ -72,55 +73,52 @@ titleFix.BorderSizePixel  = 0
 titleFix.Parent           = titleBar
 
 local titleLabel = Instance.new("TextLabel")
-titleLabel.Size               = UDim2.new(1, -80, 1, 0)
-titleLabel.Position           = UDim2.new(0, 14, 0, 0)
+titleLabel.Size                   = UDim2.new(1, -80, 1, 0)
+titleLabel.Position               = UDim2.new(0, 14, 0, 0)
 titleLabel.BackgroundTransparency = 1
-titleLabel.TextColor3         = Color3.fromRGB(255, 255, 255)
-titleLabel.Text               = "🌾  " .. _G.RuneHub.Config.HubName
-titleLabel.Font               = Enum.Font.GothamBold
-titleLabel.TextSize           = 15
-titleLabel.TextXAlignment     = Enum.TextXAlignment.Left
-titleLabel.Parent             = titleBar
+titleLabel.TextColor3             = Color3.fromRGB(255, 255, 255)
+titleLabel.Text                   = _G.RuneHub.Config.HubName
+titleLabel.Font                   = Enum.Font.GothamBold
+titleLabel.TextSize               = 15
+titleLabel.TextXAlignment         = Enum.TextXAlignment.Left
+titleLabel.Parent                 = titleBar
 
--- version label
 local versionLabel = Instance.new("TextLabel")
-versionLabel.Size                 = UDim2.new(0, 40, 0, 16)
-versionLabel.Position             = UDim2.new(1, -100, 0.5, -8)
+versionLabel.Size                   = UDim2.new(0, 40, 0, 16)
+versionLabel.Position               = UDim2.new(1, -100, 0.5, -8)
 versionLabel.BackgroundTransparency = 1
-versionLabel.TextColor3           = Color3.fromRGB(255, 255, 255)
-versionLabel.TextTransparency     = 0.4
-versionLabel.Text                 = "v" .. _G.RuneHub.Config.Version
-versionLabel.Font                 = Enum.Font.Gotham
-versionLabel.TextSize             = 10
-versionLabel.Parent               = titleBar
+versionLabel.TextColor3             = Color3.fromRGB(255, 255, 255)
+versionLabel.TextTransparency       = 0.4
+versionLabel.Text                   = "v" .. _G.RuneHub.Config.Version
+versionLabel.Font                   = Enum.Font.Gotham
+versionLabel.TextSize               = 10
+versionLabel.Parent                 = titleBar
 
--- minimize button
 local minBtn = Instance.new("TextButton")
-minBtn.Size                = UDim2.new(0, 24, 0, 24)
-minBtn.Position            = UDim2.new(1, -54, 0.5, -12)
-minBtn.BackgroundColor3    = Color3.fromRGB(255, 255, 255)
+minBtn.Size                   = UDim2.new(0, 24, 0, 24)
+minBtn.Position               = UDim2.new(1, -54, 0.5, -12)
+minBtn.BackgroundColor3       = Color3.fromRGB(255, 255, 255)
 minBtn.BackgroundTransparency = 0.7
-minBtn.TextColor3          = Color3.fromRGB(255, 255, 255)
-minBtn.Text                = "—"
-minBtn.Font                = Enum.Font.GothamBold
-minBtn.TextSize            = 11
-minBtn.BorderSizePixel     = 0
-minBtn.ZIndex              = 20
-minBtn.Parent              = titleBar
+minBtn.TextColor3             = Color3.fromRGB(255, 255, 255)
+minBtn.Text                   = "-"
+minBtn.Font                   = Enum.Font.GothamBold
+minBtn.TextSize               = 11
+minBtn.BorderSizePixel        = 0
+minBtn.ZIndex                 = 20
+minBtn.Parent                 = titleBar
 Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
 
--- close button
 local closeBtn = Instance.new("TextButton")
-closeBtn.Size                = UDim2.new(0, 24, 0, 24)
-closeBtn.Position            = UDim2.new(1, -26, 0.5, -12)
-closeBtn.BackgroundColor3    = Theme.Danger
-closeBtn.TextColor3          = Color3.fromRGB(255, 255, 255)
-closeBtn.Text                = "✕"
-closeBtn.Font                = Enum.Font.GothamBold
-closeBtn.TextSize            = 11
-closeBtn.BorderSizePixel     = 0
-closeBtn.ZIndex              = 20
-closeBtn.Parent              = titleBar
+closeBtn.Size             = UDim2.new(0, 24, 0, 24)
+closeBtn.Position         = UDim2.new(1, -26, 0.5, -12)
+closeBtn.BackgroundColor3 = Theme.Danger
+closeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
+closeBtn.Text             = "X"
+closeBtn.Font             = Enum.Font.GothamBold
+closeBtn.TextSize         = 11
+closeBtn.BorderSizePixel  = 0
+closeBtn.ZIndex           = 20
+closeBtn.Parent           = titleBar
 Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
 
 -- =====================
@@ -142,7 +140,7 @@ tabLayout.Parent              = tabBar
 
 local tabPad = Instance.new("UIPadding")
 tabPad.PaddingLeft = UDim.new(0, 6)
-tabPad.Parent = tabBar
+tabPad.Parent      = tabBar
 
 -- =====================
 -- CONTENT AREA
@@ -173,26 +171,26 @@ statusDot.Parent           = statusBar
 Instance.new("UICorner", statusDot).CornerRadius = UDim.new(1, 0)
 
 local statusLabel = Instance.new("TextLabel")
-statusLabel.Size                  = UDim2.new(1, -20, 1, 0)
-statusLabel.Position              = UDim2.new(0, 20, 0, 0)
+statusLabel.Size                   = UDim2.new(1, -20, 1, 0)
+statusLabel.Position               = UDim2.new(0, 20, 0, 0)
 statusLabel.BackgroundTransparency = 1
-statusLabel.TextColor3            = Theme.TextMuted
-statusLabel.Text                  = "Ready"
-statusLabel.Font                  = Enum.Font.Gotham
-statusLabel.TextSize              = 10
-statusLabel.TextXAlignment        = Enum.TextXAlignment.Left
-statusLabel.Parent                = statusBar
+statusLabel.TextColor3             = Theme.TextMuted
+statusLabel.Text                   = "Ready"
+statusLabel.Font                   = Enum.Font.Gotham
+statusLabel.TextSize               = 10
+statusLabel.TextXAlignment         = Enum.TextXAlignment.Left
+statusLabel.Parent                 = statusBar
 
 local vLabel = Instance.new("TextLabel")
-vLabel.Size                  = UDim2.new(0, 80, 1, 0)
-vLabel.Position              = UDim2.new(1, -84, 0, 0)
+vLabel.Size                   = UDim2.new(0, 100, 1, 0)
+vLabel.Position               = UDim2.new(1, -104, 0, 0)
 vLabel.BackgroundTransparency = 1
-vLabel.TextColor3            = Theme.TextMuted
-vLabel.Text                  = _G.RuneHub.Config.HubName .. " v" .. _G.RuneHub.Config.Version
-vLabel.Font                  = Enum.Font.Gotham
-vLabel.TextSize              = 10
-vLabel.TextXAlignment        = Enum.TextXAlignment.Right
-vLabel.Parent                = statusBar
+vLabel.TextColor3             = Theme.TextMuted
+vLabel.Text                   = _G.RuneHub.Config.HubName .. " v" .. _G.RuneHub.Config.Version
+vLabel.Font                   = Enum.Font.Gotham
+vLabel.TextSize               = 10
+vLabel.TextXAlignment         = Enum.TextXAlignment.Right
+vLabel.Parent                 = statusBar
 
 -- =====================
 -- BUTTON LOGIC
@@ -204,13 +202,14 @@ minBtn.MouseButton1Click:Connect(function()
     contentArea.Visible = not isMinimized
     tabBar.Visible      = not isMinimized
     statusBar.Visible   = not isMinimized
-    frame.Size = isMinimized
-        and UDim2.new(0, 300, 0, 40)
-        or  UDim2.new(0, 300, 0, 430)
-    minBtn.Text = isMinimized and "□" or "—"
+    if isMinimized then
+        frame.Size  = UDim2.new(0, 300, 0, 40)
+        minBtn.Text = "+"
+    else
+        frame.Size  = UDim2.new(0, 300, 0, 430)
+        minBtn.Text = "-"
+    end
 end)
-
-local activeToggles = 0
 
 closeBtn.MouseButton1Click:Connect(function()
     if _G.RuneHub.Toggles then
@@ -219,18 +218,17 @@ closeBtn.MouseButton1Click:Connect(function()
         end
     end
     frame.Visible = false
-    showBtn.Text  = "🌾 Show Hub"
+    showBtn.Text  = _G.RuneHub.Config.HubName
     showBtn.BackgroundColor3 = Theme.Accent
-    statusLabel.Text = "Closed — all stopped"
 end)
 
 showBtn.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
     if frame.Visible then
-        showBtn.Text             = "👁 Hide Hub"
+        showBtn.Text             = "Hide Hub"
         showBtn.BackgroundColor3 = Theme.Danger
     else
-        showBtn.Text             = "🌾 " .. _G.RuneHub.Config.HubName
+        showBtn.Text             = _G.RuneHub.Config.HubName
         showBtn.BackgroundColor3 = Theme.Accent
     end
 end)
@@ -238,8 +236,6 @@ end)
 -- =====================
 -- PUBLIC API
 -- =====================
-_G.RuneHub.GUI = {}
-
 _G.RuneHub.GUI.UpdateStatus = function(text)
     statusLabel.Text = text
 end
@@ -257,9 +253,9 @@ _G.RuneHub.GUI.MakePage = function()
     scroll.Parent               = contentArea
 
     local layout = Instance.new("UIListLayout")
-    layout.Padding                = UDim.new(0, 6)
-    layout.HorizontalAlignment    = Enum.HorizontalAlignment.Center
-    layout.Parent                 = scroll
+    layout.Padding             = UDim.new(0, 6)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.Parent              = scroll
 
     local pad = Instance.new("UIPadding")
     pad.PaddingTop    = UDim.new(0, 8)
@@ -280,9 +276,7 @@ _G.RuneHub.GUI.MakeTab = function(name, icon, page)
     tab.TextSize         = 10
     tab.BorderSizePixel  = 0
     tab.Parent           = tabBar
-    Instance.new("UICorner", tab).CornerRadius = UDim.new(0, 0)
 
-    -- underline indicator
     local indicator = Instance.new("Frame")
     indicator.Size             = UDim2.new(1, -8, 0, 2)
     indicator.Position         = UDim2.new(0, 4, 1, -2)
@@ -297,25 +291,23 @@ _G.RuneHub.GUI.MakeTab = function(name, icon, page)
     tab.MouseButton1Click:Connect(function()
         for _, p in pairs(pages) do p.Visible = false end
         for _, t in pairs(tabButtons) do
-            t.btn.TextColor3    = Theme.TextMuted
+            t.btn.TextColor3       = Theme.TextMuted
             t.btn.BackgroundColor3 = Theme.TabBar
-            t.indicator.Visible = false
+            t.indicator.Visible    = false
         end
-        page.Visible          = true
-        tab.TextColor3        = Color3.fromRGB(255, 255, 255)
-        tab.BackgroundColor3  = Color3.fromRGB(30, 30, 42)
-        indicator.Visible     = true
-        activePage            = page
+        page.Visible           = true
+        tab.TextColor3         = Color3.fromRGB(255, 255, 255)
+        tab.BackgroundColor3   = Color3.fromRGB(30, 30, 42)
+        indicator.Visible      = true
     end)
 
     return tab
 end
 
--- toggle button widget
 _G.RuneHub.GUI.MakeToggle = function(page, label, desc, toggleKey, accentColor, onEnable)
     local container = Instance.new("Frame")
     container.Size             = UDim2.new(0, 276, 0, 58)
-    container.BackgroundColor3 = _G.RuneHub.Config.Theme.Surface
+    container.BackgroundColor3 = Theme.Surface
     container.BorderSizePixel  = 0
     container.Parent           = page
     Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
@@ -323,69 +315,68 @@ _G.RuneHub.GUI.MakeToggle = function(page, label, desc, toggleKey, accentColor, 
     local accent = Instance.new("Frame")
     accent.Size             = UDim2.new(0, 3, 1, -16)
     accent.Position         = UDim2.new(0, 8, 0, 8)
-    accent.BackgroundColor3 = _G.RuneHub.Config.Theme.Border
+    accent.BackgroundColor3 = Theme.Border
     accent.BorderSizePixel  = 0
     accent.Parent           = container
     Instance.new("UICorner", accent).CornerRadius = UDim.new(0, 2)
 
     local lbl = Instance.new("TextLabel")
-    lbl.Size               = UDim2.new(0, 170, 0, 20)
-    lbl.Position           = UDim2.new(0, 20, 0, 9)
+    lbl.Size                  = UDim2.new(0, 170, 0, 20)
+    lbl.Position              = UDim2.new(0, 20, 0, 9)
     lbl.BackgroundTransparency = 1
-    lbl.TextColor3         = _G.RuneHub.Config.Theme.TextPrimary
-    lbl.Text               = label
-    lbl.Font               = Enum.Font.GothamBold
-    lbl.TextSize           = 12
-    lbl.TextXAlignment     = Enum.TextXAlignment.Left
-    lbl.Parent             = container
+    lbl.TextColor3            = Theme.TextPrimary
+    lbl.Text                  = label
+    lbl.Font                  = Enum.Font.GothamBold
+    lbl.TextSize              = 12
+    lbl.TextXAlignment        = Enum.TextXAlignment.Left
+    lbl.Parent                = container
 
     local descLbl = Instance.new("TextLabel")
-    descLbl.Size               = UDim2.new(0, 170, 0, 16)
-    descLbl.Position           = UDim2.new(0, 20, 0, 30)
+    descLbl.Size                  = UDim2.new(0, 170, 0, 16)
+    descLbl.Position              = UDim2.new(0, 20, 0, 30)
     descLbl.BackgroundTransparency = 1
-    descLbl.TextColor3         = _G.RuneHub.Config.Theme.TextMuted
-    descLbl.Text               = desc
-    descLbl.Font               = Enum.Font.Gotham
-    descLbl.TextSize           = 10
-    descLbl.TextXAlignment     = Enum.TextXAlignment.Left
-    descLbl.Parent             = container
+    descLbl.TextColor3            = Theme.TextMuted
+    descLbl.Text                  = desc
+    descLbl.Font                  = Enum.Font.Gotham
+    descLbl.TextSize              = 10
+    descLbl.TextXAlignment        = Enum.TextXAlignment.Left
+    descLbl.Parent                = container
 
     local pill = Instance.new("TextButton")
-    pill.Size                = UDim2.new(0, 44, 0, 22)
-    pill.Position            = UDim2.new(1, -52, 0.5, -11)
-    pill.BackgroundColor3    = _G.RuneHub.Config.Theme.Border
-    pill.TextColor3          = _G.RuneHub.Config.Theme.TextMuted
-    pill.Text                = "OFF"
-    pill.Font                = Enum.Font.GothamBold
-    pill.TextSize            = 9
-    pill.BorderSizePixel     = 0
-    pill.Parent              = container
+    pill.Size             = UDim2.new(0, 44, 0, 22)
+    pill.Position         = UDim2.new(1, -52, 0.5, -11)
+    pill.BackgroundColor3 = Theme.Border
+    pill.TextColor3       = Theme.TextMuted
+    pill.Text             = "OFF"
+    pill.Font             = Enum.Font.GothamBold
+    pill.TextSize         = 9
+    pill.BorderSizePixel  = 0
+    pill.Parent           = container
     Instance.new("UICorner", pill).CornerRadius = UDim.new(0, 11)
 
     pill.MouseButton1Click:Connect(function()
         _G.RuneHub.Toggles[toggleKey] = not _G.RuneHub.Toggles[toggleKey]
         if _G.RuneHub.Toggles[toggleKey] then
-            pill.BackgroundColor3 = accentColor
-            pill.TextColor3       = Color3.fromRGB(255, 255, 255)
-            pill.Text             = "ON"
+            pill.BackgroundColor3   = accentColor
+            pill.TextColor3         = Color3.fromRGB(255, 255, 255)
+            pill.Text               = "ON"
             accent.BackgroundColor3 = accentColor
             onEnable()
             _G.RuneHub.GUI.UpdateStatus(label .. " enabled")
         else
-            pill.BackgroundColor3   = _G.RuneHub.Config.Theme.Border
-            pill.TextColor3         = _G.RuneHub.Config.Theme.TextMuted
+            pill.BackgroundColor3   = Theme.Border
+            pill.TextColor3         = Theme.TextMuted
             pill.Text               = "OFF"
-            accent.BackgroundColor3 = _G.RuneHub.Config.Theme.Border
+            accent.BackgroundColor3 = Theme.Border
             _G.RuneHub.GUI.UpdateStatus(label .. " disabled")
         end
     end)
 end
 
--- action button widget (one-click, no toggle)
 _G.RuneHub.GUI.MakeAction = function(page, label, desc, accentColor, onClick)
     local container = Instance.new("Frame")
     container.Size             = UDim2.new(0, 276, 0, 58)
-    container.BackgroundColor3 = _G.RuneHub.Config.Theme.Surface
+    container.BackgroundColor3 = Theme.Surface
     container.BorderSizePixel  = 0
     container.Parent           = page
     Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
@@ -399,26 +390,26 @@ _G.RuneHub.GUI.MakeAction = function(page, label, desc, accentColor, onClick)
     Instance.new("UICorner", accent).CornerRadius = UDim.new(0, 2)
 
     local lbl = Instance.new("TextLabel")
-    lbl.Size               = UDim2.new(0, 170, 0, 20)
-    lbl.Position           = UDim2.new(0, 20, 0, 9)
+    lbl.Size                  = UDim2.new(0, 170, 0, 20)
+    lbl.Position              = UDim2.new(0, 20, 0, 9)
     lbl.BackgroundTransparency = 1
-    lbl.TextColor3         = _G.RuneHub.Config.Theme.TextPrimary
-    lbl.Text               = label
-    lbl.Font               = Enum.Font.GothamBold
-    lbl.TextSize           = 12
-    lbl.TextXAlignment     = Enum.TextXAlignment.Left
-    lbl.Parent             = container
+    lbl.TextColor3            = Theme.TextPrimary
+    lbl.Text                  = label
+    lbl.Font                  = Enum.Font.GothamBold
+    lbl.TextSize              = 12
+    lbl.TextXAlignment        = Enum.TextXAlignment.Left
+    lbl.Parent                = container
 
     local descLbl = Instance.new("TextLabel")
-    descLbl.Size               = UDim2.new(0, 170, 0, 16)
-    descLbl.Position           = UDim2.new(0, 20, 0, 30)
+    descLbl.Size                  = UDim2.new(0, 170, 0, 16)
+    descLbl.Position              = UDim2.new(0, 20, 0, 30)
     descLbl.BackgroundTransparency = 1
-    descLbl.TextColor3         = _G.RuneHub.Config.Theme.TextMuted
-    descLbl.Text               = desc
-    descLbl.Font               = Enum.Font.Gotham
-    descLbl.TextSize           = 10
-    descLbl.TextXAlignment     = Enum.TextXAlignment.Left
-    descLbl.Parent             = container
+    descLbl.TextColor3            = Theme.TextMuted
+    descLbl.Text                  = desc
+    descLbl.Font                  = Enum.Font.Gotham
+    descLbl.TextSize              = 10
+    descLbl.TextXAlignment        = Enum.TextXAlignment.Left
+    descLbl.Parent                = container
 
     local btn = Instance.new("TextButton")
     btn.Size             = UDim2.new(0, 50, 0, 22)
@@ -434,7 +425,7 @@ _G.RuneHub.GUI.MakeAction = function(page, label, desc, accentColor, onClick)
 
     btn.MouseButton1Click:Connect(function()
         btn.Text             = "..."
-        btn.BackgroundColor3 = _G.RuneHub.Config.Theme.Border
+        btn.BackgroundColor3 = Theme.Border
         _G.RuneHub.GUI.UpdateStatus("Running: " .. label)
         task.spawn(function()
             onClick()
@@ -446,12 +437,11 @@ _G.RuneHub.GUI.MakeAction = function(page, label, desc, accentColor, onClick)
     end)
 end
 
--- section label
 _G.RuneHub.GUI.MakeSection = function(page, text)
     local lbl = Instance.new("TextLabel")
     lbl.Size                  = UDim2.new(0, 276, 0, 18)
     lbl.BackgroundTransparency = 1
-    lbl.TextColor3            = _G.RuneHub.Config.Theme.TextMuted
+    lbl.TextColor3            = Theme.TextMuted
     lbl.Text                  = text
     lbl.Font                  = Enum.Font.GothamBold
     lbl.TextSize              = 10
@@ -463,7 +453,6 @@ _G.RuneHub.GUI.MakeSection = function(page, text)
     pad.Parent      = lbl
 end
 
--- rarity multi-select widget
 _G.RuneHub.GUI.MakeRaritySelector = function(page, labelText, selectedKey)
     local cfg = _G.RuneHub.Config
 
@@ -479,26 +468,30 @@ _G.RuneHub.GUI.MakeRaritySelector = function(page, labelText, selectedKey)
 
     local headerPad = Instance.new("UIPadding")
     headerPad.PaddingLeft = UDim.new(0, 8)
-    headerPad.Parent = header
+    headerPad.Parent      = header
 
     local container = Instance.new("Frame")
-    container.Size             = UDim2.new(0, 276, 0, 82)
+    container.Size             = UDim2.new(0, 276, 0, 86)
     container.BackgroundColor3 = cfg.Theme.Surface
     container.BorderSizePixel  = 0
     container.Parent           = page
     Instance.new("UICorner", container).CornerRadius = UDim.new(0, 10)
 
     local grid = Instance.new("UIGridLayout")
-    grid.CellSize              = UDim2.new(0, 80, 0, 22)
-    grid.CellPadding           = UDim2.new(0, 4, 0, 4)
-    grid.HorizontalAlignment   = Enum.HorizontalAlignment.Center
-    grid.VerticalAlignment     = Enum.VerticalAlignment.Center
-    grid.Parent                = container
+    grid.CellSize            = UDim2.new(0, 80, 0, 22)
+    grid.CellPadding         = UDim2.new(0, 4, 0, 4)
+    grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    grid.VerticalAlignment   = Enum.VerticalAlignment.Center
+    grid.Parent              = container
 
     local pad = Instance.new("UIPadding")
     pad.PaddingTop    = UDim.new(0, 6)
     pad.PaddingBottom = UDim.new(0, 6)
     pad.Parent        = container
+
+    if not _G.RuneHub[selectedKey] then
+        _G.RuneHub[selectedKey] = {}
+    end
 
     for _, rarity in ipairs(cfg.RarityOrder) do
         local rbtn = Instance.new("TextButton")
@@ -512,16 +505,12 @@ _G.RuneHub.GUI.MakeRaritySelector = function(page, labelText, selectedKey)
         rbtn.Parent           = container
         Instance.new("UICorner", rbtn).CornerRadius = UDim.new(0, 6)
 
-        -- check if currently selected
-        if _G.RuneHub[selectedKey] and _G.RuneHub[selectedKey][rarity] then
+        if _G.RuneHub[selectedKey][rarity] then
             rbtn.BackgroundColor3 = cfg.RarityColors[rarity]
             rbtn.TextColor3       = Color3.fromRGB(255, 255, 255)
         end
 
         rbtn.MouseButton1Click:Connect(function()
-            if not _G.RuneHub[selectedKey] then
-                _G.RuneHub[selectedKey] = {}
-            end
             _G.RuneHub[selectedKey][rarity] = not _G.RuneHub[selectedKey][rarity]
             if _G.RuneHub[selectedKey][rarity] then
                 rbtn.BackgroundColor3 = cfg.RarityColors[rarity]
@@ -534,21 +523,19 @@ _G.RuneHub.GUI.MakeRaritySelector = function(page, labelText, selectedKey)
     end
 end
 
--- activate first tab helper
 _G.RuneHub.GUI.ActivateFirstTab = function()
     if #tabButtons > 0 then
-        tabButtons[1].btn:Invoke and tabButtons[1].btn:Invoke()
-        -- manual activation
+        local first = tabButtons[1]
         for _, p in pairs(pages) do p.Visible = false end
         for _, t in pairs(tabButtons) do
-            t.btn.TextColor3       = _G.RuneHub.Config.Theme.TextMuted
-            t.btn.BackgroundColor3 = _G.RuneHub.Config.Theme.TabBar
+            t.btn.TextColor3       = Theme.TextMuted
+            t.btn.BackgroundColor3 = Theme.TabBar
             t.indicator.Visible    = false
         end
-        tabButtons[1].page.Visible          = true
-        tabButtons[1].btn.TextColor3        = Color3.fromRGB(255, 255, 255)
-        tabButtons[1].btn.BackgroundColor3  = Color3.fromRGB(30, 30, 42)
-        tabButtons[1].indicator.Visible     = true
+        first.page.Visible          = true
+        first.btn.TextColor3        = Color3.fromRGB(255, 255, 255)
+        first.btn.BackgroundColor3  = Color3.fromRGB(30, 30, 42)
+        first.indicator.Visible     = true
     end
 end
 
