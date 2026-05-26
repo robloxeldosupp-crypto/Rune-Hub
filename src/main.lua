@@ -1,15 +1,5 @@
 -- main.lua
 
-_G.RuneHub.Toggles = {
-    autoUnlockPlots  = false,
-    autoUpgradeFarm  = false,
-    autoSellCrates   = false,
-    autoClaimRewards = false,
-    autoRollSeeds    = false,
-    autoPlant        = false,
-    autoRemove       = false,
-}
-
 _G.RuneHub.GUI.ActivateFirstTab()
 _G.RuneHub.GUI.UpdateStatus("Ready")
 

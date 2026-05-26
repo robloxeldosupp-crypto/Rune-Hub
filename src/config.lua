@@ -1,26 +1,15 @@
 -- config.lua
--- Global config shared across all modules
 
 _G.RuneHub.Config = {
 
     Version = "1.0.0",
     HubName = "Rune Hub",
 
-    -- Rarity order lowest to highest
     RarityOrder = {
-        "Common",
-        "Uncommon",
-        "Rare",
-        "Epic",
-        "Legendary",
-        "Secret",
-        "Prismatic",
-        "Divine",
-        "Exotic",
-        "Transcended",
+        "Common", "Uncommon", "Rare", "Epic", "Legendary",
+        "Secret", "Prismatic", "Divine", "Exotic", "Transcended",
     },
 
-    -- Roblox Color3 values for each rarity
     RarityColors = {
         Common      = Color3.fromRGB(150, 150, 150),
         Uncommon    = Color3.fromRGB(34,  197, 94),
@@ -34,7 +23,6 @@ _G.RuneHub.Config = {
         Transcended = Color3.fromRGB(255, 50,  50),
     },
 
-    -- Theme colors
     Theme = {
         Accent      = Color3.fromRGB(34,  197, 94),
         Background  = Color3.fromRGB(15,  15,  20),
@@ -49,7 +37,21 @@ _G.RuneHub.Config = {
     },
 }
 
--- Helper: get rarity level number
+-- init Toggles here so all tabs can access it immediately
+_G.RuneHub.Toggles = {
+    autoUnlockPlots  = false,
+    autoUpgradeFarm  = false,
+    autoSellCrates   = false,
+    autoClaimRewards = false,
+    autoRollSeeds    = false,
+    autoPlant        = false,
+    autoRemove       = false,
+}
+
+-- init rarity selection tables
+_G.RuneHub.PlantRarities  = {}
+_G.RuneHub.RemoveRarities = {}
+
 _G.RuneHub.GetRarityLevel = function(rarity)
     for i, r in ipairs(_G.RuneHub.Config.RarityOrder) do
         if r == rarity then return i end
